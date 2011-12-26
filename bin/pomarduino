@@ -1,0 +1,13 @@
+#!/usr/bin/env python
+
+import daemon
+import sys
+
+from pomarduino import Pomarduino
+
+with daemon.DaemonContext(detach_process=False, stdout=sys.stdout, stderr=sys.stdout):
+    p = Pomarduino(com_port='/dev/ttyUSB0',
+                   baudrate=9600)
+    p.main()
+
+
