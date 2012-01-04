@@ -18,26 +18,41 @@ class Pomarduino(object):
         self.proxy.connect_to_signal("worksession_start", self._worksession_start)
         self.proxy.connect_to_signal("worksession_end", self._worksession_end)
 
+
+    def _openSerial(self):
+        handler = serial.Serial(port=self.com_port,
+                                baudrate=self.baudrate,
+                                bytesize=8,
+                                parity='N',
+                                stopbits=1,
+                                timeout=3,
+                                xonxoff=0,
+                                rtscts=0)
+        handler.open()
+
+        return handler
+
+
+    def _closeSerial(self, serial):
+        serial.close()
+        
     def _worksession_start(self, seconds):
+        serial = self._openSerial()
+        
         minutes = int(seconds) / 60
         data = chr(minutes)
-        self.serial.write(data)
+        serial.write(data)
+
+        self._closeSerial(serial)
 
     def _worksession_end(self):
-        self.serial.write(chr(0))
+        serial = self._openSerial()
+        serial.write(chr(0))
+
+        self._closeSerial(serial)
 
         
     def main(self):
-        self.serial = serial.Serial(port=self.com_port,
-                                    baudrate=self.baudrate,
-                                    bytesize=8,
-                                    parity='N',
-                                    stopbits=1,
-                                    timeout=3,
-                                    xonxoff=0,
-                                    rtscts=0)
-        self.serial.open()
-
         loop = gobject.MainLoop()
         loop.run()
 
